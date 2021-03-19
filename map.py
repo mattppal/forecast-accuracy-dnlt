@@ -9,9 +9,12 @@ with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-c
 
 df = pd.read_csv('data_with_fips.csv')
 
-grouped_df = df[['overall', 'STCOUNTYFP']].groupby(['STCOUNTYFP']).mean().reset_index()
+df['rank'] = df.groupby(['STCOUNTYFP'])['overall'].rank(method='first', ascending=True)
+grouped_df = df[df['rank']==1]
+
 grouped_df = grouped_df[~grouped_df['STCOUNTYFP'].isnull()]
 grouped_df['fips'] = grouped_df.apply(lambda row: str(int(row['STCOUNTYFP'])).rjust(5,'0'), axis=1)
+
 
 min_accuracy = grouped_df['overall'].min()
 max_accuracy = grouped_df['overall'].max()
